@@ -182,6 +182,7 @@ package Number::Fraction;
 use 5.006;
 use strict;
 use warnings;
+use utf8;
 
 use Carp;
 use Moose;
@@ -883,19 +884,19 @@ sub _hcf {
 # translating back and forth between basic digits and sup- or sub-script
 
 sub _sup_to_basic {
-  $_ = shift; tr/\N{U+2070}\N{U+00B9}\N{U+00B2}\N{U+00B3}\N{U+2074}-\N{U+207E}/0-9+\-=()/; return $_;
+  $_ = shift; tr/⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾/0123456789+\-=()/; return $_;
 }
 
 sub _sub_to_basic {
-  $_ = shift; tr/\N{U+2080}-\N{U+208E}/0-9+\-=()/; return $_;
+  $_ = shift; tr/₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎/0123456789+\-=()/; return $_;
 }
 
 sub _basic_to_sup {
-  $_ = shift; tr/0-9+\-=()/\N{U+2070}\N{U+00B9}\N{U+00B2}\N{U+00B3}\N{U+2074}-\N{U+207E}/; return $_;
+  $_ = shift; tr/0123456789+\-=()/⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾/; return $_;
 }
 
 sub _basic_to_sub {
-  $_ = shift; tr/0-9+\-=()/\N{U+2080}-\N{U+208E}/; return $_;
+  $_ = shift; tr/0123456789+\-=()/₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎/; return $_;
 }
 
 # turn a basic string into one using sup- and sub-script characters
