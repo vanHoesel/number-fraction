@@ -314,21 +314,21 @@ Dies if a Number::Fraction object can't be created.
 =cut 
 
 our @_vulgar_fractions = (
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+00BC}\z|, num=>1, den=>4},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+00BD}\z|, num=>1, den=>2},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+00BE}\z|, num=>3, den=>4},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+2153}\z|, num=>1, den=>3},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+2154}\z|, num=>2, den=>3},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+2155}\z|, num=>1, den=>5},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+2156}\z|, num=>2, den=>5},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+2157}\z|, num=>3, den=>5},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+2158}\z|, num=>4, den=>5},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+2159}\z|, num=>1, den=>6},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+215A}\z|, num=>5, den=>6},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+215B}\z|, num=>1, den=>8},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+215C}\z|, num=>3, den=>8},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+215D}\z|, num=>5, den=>8},
-  {regexp=> qr|^(?<sign>-?)(?<int>[0-9]+)?\N{U+215E}\z|, num=>7, den=>8},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+00BC}\z|, num=>1, den=>4},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+00BD}\z|, num=>1, den=>2},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+00BE}\z|, num=>3, den=>4},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+2153}\z|, num=>1, den=>3},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+2154}\z|, num=>2, den=>3},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+2155}\z|, num=>1, den=>5},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+2156}\z|, num=>2, den=>5},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+2157}\z|, num=>3, den=>5},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+2158}\z|, num=>4, den=>5},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+2159}\z|, num=>1, den=>6},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+215A}\z|, num=>5, den=>6},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+215B}\z|, num=>1, den=>8},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+215C}\z|, num=>3, den=>8},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+215D}\z|, num=>5, den=>8},
+  {regexp=> qr|^(-?)([0-9]+)?\N{U+215E}\z|, num=>7, den=>8},
 );
 
 our %_vulgar_codepoints = (
@@ -383,61 +383,66 @@ around BUILDARGS => sub {
         die "Can't make a $class from a ", ref $_[0];
       }
     }
-    
+
+    my ($x_sign, $x_int, $x_num, $x_den);
+
     for (@_vulgar_fractions) { # provides $_->{num} and $_->{den}
-      if ($_[0] =~ m/$_->{regexp}/ ) {
+      if ( ($x_sign, $x_int) = $_[0] =~ m/$_->{regexp}/ ) {
         return $class->$orig({
-            num => (defined $+{int} ? $+{int} : 0) * $_->{den} + $_->{num},
-            den => ($+{sign} eq '-') ? $_->{den} * -1 : $_->{den},
+            num => (defined $x_int ? $x_int : 0) * $_->{den} + $_->{num},
+            den => ($x_sign eq '-') ? $_->{den} * -1 : $_->{den},
             }
         );
       }
     }
 
     # check for unicode mixed super/sub scripted strings
-    if ($_[0] =~ m|
+    if ( ($x_sign, $x_int, $x_num, $x_den) = $_[0] =~ m|
          ^
-         (?<sign>-?)
-         (?<int>[0-9]+)?
-         (?<num>[\N{U+2070}\N{U+00B9}\N{U+00B2}\N{U+00B3}\N{U+2074}-\N{U+207B}]+)
+         (-?)
+         ([0-9]+)?
+         ([\N{U+2070}\N{U+00B9}\N{U+00B2}\N{U+00B3}\N{U+2074}-\N{U+207B}]+)
          \N{U+2044} # FRACTION SLASH
-         (?<den>[\N{U+2080}-\N{U+208B}]+)
+         ([\N{U+2080}-\N{U+208B}]+)
          \z
          |x ) {
-      my $num = _sup_to_basic($+{num});
-      my $den = _sub_to_basic($+{den});
+      my $num = _sup_to_basic($x_num);
+      my $den = _sub_to_basic($x_den);
       return $class->$orig({
-        num => (defined $+{int} ? $+{int} : 0) * $den + $num,
-        den => ($+{sign} eq '-') ? $den * -1 : $den,
+        num => (defined $x_int ? $x_int : 0) * $den + $num,
+        den => ($x_sign eq '-') ? $den * -1 : $den,
         }
       );
     }
      
     # check for floating point
-    elsif ($_[0] =~ m|
+    elsif ( ($x_sign, $x_int, $x_num) = $_[0] =~ m|
         ^
-        (?<sign>-?)
-        (?<int>[0-9]+)?
+        (-?)
+        ([0-9]+)?
         [.,] # yep, lets do bdecimal point or comma
-        (?<num>[0-9]+)
+        ([0-9]+)
         \z
         |x ) {
-      my $num = $+{num};
-      my $den = 10 ** length($+{num});
+      my $num = $x_num;
+      my $den = 10 ** length($x_num);
       return $class->$orig({
-        num => (defined $+{int} ? $+{int} : 0) * $den + $num,
-        den => ($+{sign} eq '-') ? $den * -1 : $den,
+        num => (defined $x_int ? $x_int : 0) * $den + $num,
+        den => ($x_sign eq '-') ? $den * -1 : $den,
         }
       );
     }
     
-    if ($_[0] =~ m|^(-?)([0-9]+)[_ \N{U+00A0}]([0-9]+)/([0-9]+)\z|) {
-        return $class->$orig({
-          num => $2 * $4 + $3,
-          den=> ($1 eq '-') ? $4 * -1 : $4}
-        );
-    } elsif ($_[0] =~ m|^(-?[0-9]+)(?:/(-?[0-9]+))?\z|) {
-        return $class->$orig({ num => $1, den => ( defined $2 ? $2 : 1) });
+    if ( ($x_sign, $x_int, $x_num, $x_den) = $_[0] =~ m|^(-?)([0-9]+)[_ \N{U+00A0}]([0-9]+)/([0-9]+)\z|) {
+      my $num = $x_num;
+      my $den = $x_den;
+      return $class->$orig({
+        num => (defined $x_int ? $x_int : 0) * $den + $num,
+        den => ($x_sign eq '-') ? $den * -1 : $den,
+        }
+      );
+    } elsif ( ($x_num, $x_den) = $_[0] =~ m|^(-?[0-9]+)(?:/(-?[0-9]+))?\z|) {
+        return $class->$orig({ num => $x_num, den => ( defined $x_den ? $x_den : 1) });
     } else {
         die "Can't make fraction out of $_[0]\n";
     }
@@ -895,18 +900,18 @@ sub _basic_to_sub {
 
 # turn a basic string into one using sup- and sub-script characters
 sub _to_unicode {
-  if ($_[0] =~ m|^(?<sign>-?)(?<num>\d+)/(?<den>\d+)$|) {
-    my $num = _basic_to_sup($+{num});
-    my $den = _basic_to_sub($+{den});
-    return ($+{sign} ? "\N{U+207B}" : '') . $num . "\N{U+2044}" . $den;
+  if ( my($x_sign, $x_num, $x_den) = $_[0] =~ m|^(-?)(\d+)/(\d+)$|) {
+    my $num = _basic_to_sup($x_num);
+    my $den = _basic_to_sub($x_den);
+    return ($x_sign ? "\N{U+207B}" : '') . $num . "\N{U+2044}" . $den;
   }
-  if ($_[0] =~ m|^(?<sign>-?)(?<int>\d+)$MIXED_SEP(?<num>\d+)/(?<den>\d+)$|) {
-    my $num = _basic_to_sup($+{num});
-    my $den = _basic_to_sub($+{den});
-    return $+{sign} . $+{int} . $num . "\N{U+2044}" . $den;
+  if (my($x_sign, $x_int, $x_num, $x_den) = $_[0] =~ m|^(-?)(\d+)$MIXED_SEP(\d+)/(\d+)$|) {
+    my $num = _basic_to_sup($x_num);
+    my $den = _basic_to_sub($x_den);
+    return $x_sign . $x_int . $num . "\N{U+2044}" . $den;
   }
-  if ($_[0] =~ m|^(?<sign>-?)(?<int>\d+)$|) {
-    return $+{sign} . $+{int}; # Darn, this is just what we got!
+  if ( my($x_sign, $x_int) = $_[0] =~ m|^(-?)(\d+)$|) {
+    return $x_sign . $x_int; # Darn, this is just what we got!
   }
   return;
 }
