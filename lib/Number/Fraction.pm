@@ -787,12 +787,29 @@ sub abs {
   return (ref $self)->new(abs($self->{num}), abs($self->{den}));
 }
 
+=head2 fract
+
+Returns a new Number::Fraction to represent the remainder part if there would be
+an integer part of this fraction too, such that 13/5 will be result in 3/5 and
+-11/3 results in -2/3
+
+=cut
+
 sub fract {
   my $self = shift;
 
   my $num = ($self->{num} <=> 0) * (CORE::abs($self->{num}) % $self->{den});
   return (ref $self)->new($num, $self->{den});
 }
+
+=head2 int
+
+Returns a new Number::Fraction object that represents the 'integer' part of the
+fraction, such that 8/5 will ruslt in 13/5 will result in 2/1 and -11/3 give
+-3/1. Returning a Number::Fraction will retain the fractions throughout all
+calculations, rather than breaking this by returning a scalar.
+
+=cut
 
 sub int {
   my $self = shift;
