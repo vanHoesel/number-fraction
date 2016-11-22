@@ -20,5 +20,12 @@ t/13_exp.t
 t/14_abs.t
 t/15_zeroes.t
 t/16_decimals.t
+t/17_arguments.t
+t/18_mixed_numbers.t
+t/19_unicode_simple.t
+t/20_mixed_simple.t
+t/21_unicode_scripts_utills.t
+t/22_create_from_unicode.t
+t/24_to_text_variants.t
 META.yml
 META.json
