@@ -1,3 +1,19 @@
+2016-11-23  Theo van Hoesel <Th.J.v.Hoesel@gmail.com>
+
+  * added full support for unicode characters to parse or print fractions
+
+  * added support for the special vulgar fractions in the unicode table
+
+  * added support for mixed fractions (integer, numerator, denominator)
+
+  * added 'nearest' to find the nearest fraction from a list of denominators
+
+  * added 'cheating' support for exponentiations
+
+  * added various string routines to produce mixed and or unicode strings
+
+  * added int and fract methods
+
 2013-07-25  Theo van Hoesel <Th.J.v.Hoesel@gmail.com>
 
   * Fixed CPAN RT bug #85332 Changes is 0 bytes (this file)
