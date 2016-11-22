@@ -179,7 +179,7 @@ C<eval { ... }> block (or using something equivalent like L<Try::Tiny>).
 
 package Number::Fraction;
 
-use 5.006;
+use 5.008003; # minimal for Moose
 use strict;
 use warnings;
 use utf8;
@@ -187,7 +187,7 @@ use utf8;
 use Carp;
 use Moose;
 
-our $VERSION = '2.01';
+our $VERSION = '3.00';
 
 our $_mixed = 0;
 
